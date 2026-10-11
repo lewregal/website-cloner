@@ -95,6 +95,21 @@ The `/clone-website` skill runs a multi-phase pipeline:
 
 Each builder agent receives the full component specification inline — exact `getComputedStyle()` values, interaction models, multi-state content, responsive breakpoints, and asset paths. No guessing.
 
+## Reverse Engineering Apps and Websites with REA
+
+The template ships with [REA](https://github.com/morluto/rea) ("Reverse Engineer Anything") preconfigured as an MCP server, so your agent can look inside things you don't have source for, websites and applications alike:
+
+- **Websites** — DOM, network, and JavaScript bundle analysis (vendors, routes, endpoints, source maps) plus pixel diffs between the original and your clone
+- **Applications** — Electron/JavaScript apps and `.asar` files, .NET assemblies, Android APKs, app packages (IPA, DMG, MSIX, ZIP), and native binaries (with Hopper, Ghidra, or IDA installed)
+
+Claude Code, Cursor, Gemini CLI, and Codex pick it up from the repo automatically (restart the agent after cloning; approve the `rea` server if prompted). For other agents, run `npx rea-agents setup`. Then ask in plain language:
+
+```text
+Use the reverse-engineer-anything skill to work out how search works in /Applications/Notes.app, show me the evidence, and build a similar feature here.
+```
+
+To update REA, run `npm run rea:sync -- latest`. That bumps every registration and re-vendors the matching skill.
+
 ## Use Cases
 
 - **Platform migration** — rebuild a site you own from WordPress/Webflow/Squarespace into a modern Next.js codebase
@@ -128,6 +143,7 @@ docs/
 scripts/
   sync-agent-rules.sh  # Regenerate agent instruction files
   sync-skills.mjs      # Regenerate /clone-website for all platforms
+  sync-rea.mjs         # Pin REA, register its MCP server, vendor its skill
 AGENTS.md           # Agent instructions (single source of truth)
 CLAUDE.md           # Claude Code config (imports AGENTS.md)
 GEMINI.md           # Gemini CLI config (imports AGENTS.md)
@@ -158,6 +174,7 @@ Two source-of-truth files power all platform support. Edit the source, then run 
 | ---------------------- | --------------------------------------- | ---------------------------------- |
 | Project instructions   | `AGENTS.md`                             | `bash scripts/sync-agent-rules.sh` |
 | `/clone-website` skill | `.claude/skills/clone-website/SKILL.md` | `node scripts/sync-skills.mjs`     |
+| REA MCP + skill        | `REA_VERSION` in `scripts/sync-rea.mjs` | `node scripts/sync-rea.mjs [ver]`  |
 
 Each script regenerates the platform-specific copies automatically. Agents that read the source files natively need no regeneration.
 

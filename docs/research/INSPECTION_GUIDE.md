@@ -69,6 +69,7 @@ For each distinct UI component, document:
 - [ ] **Font loading** — Google Fonts, self-hosted, system fonts
 - [ ] **Image strategy** — CDN, lazy loading, srcset, WebP/AVIF
 - [ ] **Animation library** — Framer Motion, GSAP, CSS transitions only
+- [ ] **Bundle evidence** — if the `rea` MCP server is available, `analyze_web_bundle` confirms vendors, routes, and endpoints from the shipped JavaScript (see "Reverse Engineering with REA" in `AGENTS.md`)
 
 ## Phase 5: Documentation Output
 

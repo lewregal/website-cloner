@@ -24,7 +24,8 @@ If the user provides additional instructions (specific fidelity level, customiza
 ## Pre-Flight
 
 1. **Browser automation is required.** Check for available browser MCP tools (Chrome MCP, Playwright MCP, Browserbase MCP, Puppeteer MCP, etc.). Use whichever is available — if multiple exist, prefer Chrome MCP. If none are detected, ask the user which browser tool they have and how to connect it. This skill cannot work without browser automation.
-2. Parse `the target URL provided by the user` as one or more URLs. Normalize and validate each URL; if any are invalid, ask the user to correct them before proceeding. For each valid URL, verify it is accessible via your browser MCP tool.
+2. **REA is optional but useful.** If `rea` MCP tools are available (registered in `.mcp.json`), use them alongside — never instead of — browser automation: REA attaches passively to a Chrome-family browser's loopback CDP endpoint (for example one launched with `--remote-debugging-port=9222`) and cannot click, scroll, or navigate. See "Reverse Engineering with REA" in `AGENTS.md`.
+3. Parse `the target URL provided by the user` as one or more URLs. Normalize and validate each URL; if any are invalid, ask the user to correct them before proceeding. For each valid URL, verify it is accessible via your browser MCP tool.
 3. Verify the base project builds: `npm run build`. The Next.js + shadcn/ui + Tailwind v4 scaffold should already be in place. If not, tell the user to set it up first.
 4. Create the output directories if they don't exist: `docs/research/`, `docs/research/components/`, `docs/design-references/`, `scripts/`. For multiple clones, also prepare per-site folders like `docs/research/<hostname>/` and `docs/design-references/<hostname>/`.
 5. When working with multiple sites in one command, optionally confirm whether to run them in parallel (recommended, if resources allow) or sequentially to avoid overload.
@@ -133,6 +134,8 @@ Extract these from the page before doing anything else:
 **Favicons & Meta** — Download favicons, apple-touch-icons, OG images, webmanifest to `public/seo/`. Update `layout.tsx` metadata.
 
 **Global UI patterns** — Identify any site-wide CSS or JS: custom scrollbar hiding, scroll-snap on the page container, global keyframe animations, backdrop filters, gradients used as overlays, **smooth scroll libraries** (Lenis, Locomotive Scroll — check for `.lenis`, `.locomotive-scroll`, or custom scroll container classes). Add these to `globals.css` and note any libraries that need to be installed.
+
+**Bundle analysis (REA, if available)** — When behavior is driven by JavaScript you can't read from the DOM (scroll libraries, animation timelines, client-side routing, API calls), run `list_browser_targets` then `analyze_web_bundle` on the target page for vendor fingerprints, route and endpoint candidates, and source-map evidence. Use `recover_javascript_sources` when source maps are published. Record what you find in `docs/research/BEHAVIORS.md` and cite REA's Evidence IDs.
 
 ### Mandatory Interaction Sweep
 
@@ -420,6 +423,7 @@ After assembly, do NOT declare the clone complete. Take side-by-side comparison 
    - Check the component spec file — was the value extracted correctly?
    - If the spec was wrong: re-extract from browser MCP, update the spec, fix the component
    - If the spec was right but the builder got it wrong: fix the component to match the spec
+   - With REA available, back up the visual check with pixels: `capture_web_screenshot` on the original and on the clone at the same viewport, then `compare_web_screenshots` to locate differences
 5. Test all interactive behaviors: scroll through the page, click every button/tab, hover over interactive elements
 6. Verify smooth scroll feels right, header transitions work, tab switching works, animations play
 

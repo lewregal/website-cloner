@@ -64,6 +64,17 @@ docs/
 scripts/            # Asset download scripts
 ```
 
+## Reverse Engineering with REA
+[REA](https://github.com/morluto/rea) ("Reverse Engineer Anything") is registered as the `rea` MCP server for Claude Code (`.mcp.json`), Cursor (`.cursor/mcp.json`), Gemini CLI (`.gemini/settings.json`) and Codex (`.codex/config.toml`, trusted projects). Its workflow skill is `reverse-engineer-anything` (`.claude/skills/`, `.codex/skills/`, `.github/skills/`). Other agents: run `npx rea-agents setup`. It needs Node.js 22.19+ and runs locally.
+
+Use REA when the question is about something you don't have source for: how a shipped website, app, or binary implements a feature. Skip it for this repo's own code.
+
+- **Websites** — REA attaches passively to a Chrome-family browser started with `--remote-debugging-port=9222` on loopback (it never clicks or navigates; keep using browser automation for that). Start with `list_browser_targets`, then `inspect_web_page` (DOM, resources, network metadata), `analyze_web_bundle` (vendor fingerprints, routes, endpoints, source maps), `recover_javascript_sources`, and `capture_web_screenshot` + `compare_web_screenshots` for pixel diffs against the clone.
+- **Applications** — pick the first tool from the target: Electron/JS app directory or `.asar` → `analyze_javascript_application`; running Electron app → `list_electron_targets`; .NET assembly → `inspect_managed_artifact`; Android APK → `inspect_android_package`; ZIP/APK/IPA/DMG/MSIX → `open_binary` + `inspect_artifact`; native executable → `open_binary` (needs Hopper, Ghidra, or IDA installed).
+- **No MCP?** Static JS analysis works from the CLI: `npx -y rea-agents@<pinned version> analyze-javascript-application /absolute/path --json`.
+- **Output** — save findings to `docs/research/<target>/`, separating observations, inferences, and unknowns, and cite REA Evidence IDs. When rebuilding a feature here, keep observed behavior distinct from your own design choices.
+- **Updating** — the version is pinned in `scripts/sync-rea.mjs`. Run `node scripts/sync-rea.mjs <version>` (or `latest`) to bump every registration and re-vendor the matching skill, then restart the agent. Don't edit the generated configs or the vendored skill by hand.
+
 ## MOST IMPORTANT NOTES
 - When launching Claude Code agent teams, ALWAYS have each teammate work in their own worktree branch and merge everyone's work at the end, resolving any merge conflicts smartly since you are basically serving the orchestrator role and have full context to our goals, work given, work achieved, and desired outcomes.
 - After editing `AGENTS.md`, run `bash scripts/sync-agent-rules.sh` to regenerate platform-specific instruction files.
@@ -140,6 +151,7 @@ For each distinct UI component, document:
 - [ ] **Font loading** — Google Fonts, self-hosted, system fonts
 - [ ] **Image strategy** — CDN, lazy loading, srcset, WebP/AVIF
 - [ ] **Animation library** — Framer Motion, GSAP, CSS transitions only
+- [ ] **Bundle evidence** — if the `rea` MCP server is available, `analyze_web_bundle` confirms vendors, routes, and endpoints from the shipped JavaScript (see "Reverse Engineering with REA" in `AGENTS.md`)
 
 ## Phase 5: Documentation Output
 

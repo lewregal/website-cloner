@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- REA ("Reverse Engineer Anything") MCP server registered for Claude Code, Cursor, Gemini CLI, and Codex, plus its vendored `reverse-engineer-anything` skill, for analyzing websites and applications without source code
+- `scripts/sync-rea.mjs` (`npm run rea:sync`) to pin, register, and update REA from one version
+- Optional REA steps in `/clone-website` for JavaScript bundle analysis and pixel-diff visual QA
+
 ### Changed
 - Raised the project Node.js baseline to 24 across local development, CI, Docker, and contributor-facing documentation
 
