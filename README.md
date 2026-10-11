@@ -97,18 +97,18 @@ Each builder agent receives the full component specification inline — exact `g
 
 ## Reverse Engineering Apps and Websites with REA
 
-The template ships with [REA](https://github.com/morluto/rea) ("Reverse Engineer Anything") preconfigured as an MCP server, so your agent can look inside things you don't have source for, websites and applications alike:
+The template supports [REA](https://github.com/morluto/rea) ("Reverse Engineer Anything") as an optional MCP server, so your agent can look inside things you don't have source for, websites and applications alike. It's **off by default** — `/clone-website` works without it:
 
 - **Websites** — DOM, network, and JavaScript bundle analysis (vendors, routes, endpoints, source maps) plus pixel diffs between the original and your clone
 - **Applications** — Electron/JavaScript apps and `.asar` files, .NET assemblies, Android APKs, app packages (IPA, DMG, MSIX, ZIP), and native binaries (with Hopper, Ghidra, or IDA installed)
 
-Claude Code, Cursor, Gemini CLI, and Codex pick it up from the repo automatically (restart the agent after cloning; approve the `rea` server if prompted). For other agents, run `npx rea-agents setup`. Then ask in plain language:
+Turn it on with `npm run rea:enable`. Claude Code, Cursor, Gemini CLI, and Codex then pick it up from the repo (restart the agent; approve the `rea` server if prompted). For other agents, run `npx rea-agents setup`. Then ask in plain language:
 
 ```text
 Use the reverse-engineer-anything skill to work out how search works in /Applications/Notes.app, show me the evidence, and build a similar feature here.
 ```
 
-To update REA, run `npm run rea:sync -- latest`. That bumps every registration and re-vendors the matching skill.
+To update, run `npm run rea:enable -- latest`; that bumps every registration and re-vendors the matching skill. `npm run rea:disable` removes it all again.
 
 ## Use Cases
 
@@ -143,7 +143,7 @@ docs/
 scripts/
   sync-agent-rules.sh  # Regenerate agent instruction files
   sync-skills.mjs      # Regenerate /clone-website for all platforms
-  sync-rea.mjs         # Pin REA, register its MCP server, vendor its skill
+  sync-rea.mjs         # Enable/update/disable the optional REA MCP server
 AGENTS.md           # Agent instructions (single source of truth)
 CLAUDE.md           # Claude Code config (imports AGENTS.md)
 GEMINI.md           # Gemini CLI config (imports AGENTS.md)
@@ -170,11 +170,11 @@ docker compose up dev --build # run the app in dev mode on port 3001
 
 Two source-of-truth files power all platform support. Edit the source, then run the sync script:
 
-| What                   | Source of truth                         | Sync command                       |
-| ---------------------- | --------------------------------------- | ---------------------------------- |
-| Project instructions   | `AGENTS.md`                             | `bash scripts/sync-agent-rules.sh` |
-| `/clone-website` skill | `.claude/skills/clone-website/SKILL.md` | `node scripts/sync-skills.mjs`     |
-| REA MCP + skill        | `REA_VERSION` in `scripts/sync-rea.mjs` | `node scripts/sync-rea.mjs [ver]`  |
+| What                     | Source of truth                         | Sync command                           |
+| ------------------------ | --------------------------------------- | -------------------------------------- |
+| Project instructions     | `AGENTS.md`                             | `bash scripts/sync-agent-rules.sh`     |
+| `/clone-website` skill   | `.claude/skills/clone-website/SKILL.md` | `node scripts/sync-skills.mjs`         |
+| REA MCP + skill (opt-in) | `REA_VERSION` in `scripts/sync-rea.mjs` | `node scripts/sync-rea.mjs [ver\|off]` |
 
 Each script regenerates the platform-specific copies automatically. Agents that read the source files natively need no regeneration.
 

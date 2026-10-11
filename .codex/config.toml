@@ -1,6 +1,0 @@
-# >>> rea (managed by scripts/sync-rea.mjs)
-[mcp_servers.rea]
-command = "npx"
-args = ["-y", "rea-agents@6.3.0", "mcp"]
-startup_timeout_sec = 60
-# <<< rea
